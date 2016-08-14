@@ -4,7 +4,7 @@ defmodule Client.Mixfile do
   def project do
     [app: :bitpay,
      version: "1.2.5",
-     elixir: "~> 1.0",
+     elixir: "~> 1.2",
      description: description,
      package: package,
      deps: deps,
