@@ -7,3 +7,4 @@ temp/*
 cacert.pem
 *.beam
 .pem.data
+.tool-versions*

@@ -36,7 +36,6 @@ defmodule BitPay.KeyUtils do
   def private_key pem do
     entity_from_pem(pem) |>
     elem(2) |>
-    :binary.list_to_bin |>
     Base.encode16
   end
 
@@ -56,9 +55,9 @@ defmodule BitPay.KeyUtils do
   defp entity_from_keys({public, private}) do
     {:ECPrivateKey, 
       1, 
-      :binary.bin_to_list(private), 
+      private, 
       {:namedCurve, {1, 3, 132, 0, 10}}, 
-      {0, public}}
+      public}
   end
 
   defp der_encode_entity(ec_entity), do: :public_key.der_encode(:ECPrivateKey, ec_entity)  
@@ -71,7 +70,6 @@ defmodule BitPay.KeyUtils do
     
   defp extract_coordinates(ec_entity) do
     elem(ec_entity, 4) |>
-    elem(1) |>
     Base.encode16 |>
     split_x_y
   end

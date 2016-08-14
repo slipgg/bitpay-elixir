@@ -3,7 +3,7 @@ defmodule Client.Mixfile do
 
   def project do
     [app: :bitpay,
-     version: "0.2.5",
+     version: "1.2.5",
      elixir: "~> 1.0",
      description: description,
      package: package,
@@ -32,6 +32,8 @@ defmodule Client.Mixfile do
     Library to allow elixir apps to easily use the BitPay REST API to authenticate, generate invoices, and retrieve invoices.
 
     Includes Utilities for using Erlangs library for Elliptic Curve Keys.
+
+    This version require Erlang 18, and will not run with previous versions of BEAM.
     """
   end
 

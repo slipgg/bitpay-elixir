@@ -30,7 +30,7 @@ defmodule KeyUtilsTest do
 
   test 'sign' do
     signature_decoded = KeyUtils.sign("this land is your land", @pem) |> Base.decode16 |> elem(1)
-    public_key = :public_key.pem_decode(@pem) |> List.first |> :public_key.pem_entry_decode |> elem(4) |> elem(1)
+    public_key = :public_key.pem_decode(@pem) |> List.first |> :public_key.pem_entry_decode |> elem(4)
     verify = :crypto.verify(:ecdsa, :sha256, "this land is your land", signature_decoded, [public_key, :secp256k1])
     assert verify
   end
