@@ -4,7 +4,7 @@ defmodule Client.Mixfile do
   def project do
     [app: :bitpay,
      version: "1.2.5",
-     elixir: "~> 1.2",
+     elixir: "~> 1.5.1",
      description: description,
      package: package,
      deps: deps,
@@ -46,10 +46,10 @@ defmodule Client.Mixfile do
   end
 
   defp deps do
-    [{ :mock, "~> 0.1.0", only: [:dev, :test] }, 
-     { :httpotion, "~> 3.0.0" }, 
-     { :exjsx, "~> 3.1.0" },
-     { :uuid, "~> 0.1.5" },
+    [{ :mock, "~> 0.1.0", only: [:dev, :test] },
+     { :httpotion, "~> 3.0.0" },
+     { :exjsx, "~> 4.0" },
+     { :uuid, "~> 1.1" },
      { :earmark, "~> 0.1", only: :dev },
      { :ex_doc, "~> 0.7", only: :dev},
      { :excoveralls, "~> 0.3", only: [:dev, :test]}]

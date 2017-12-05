@@ -30,7 +30,7 @@ defmodule BitPay.WebClient do
   initiates a 'client side' pairing.
 
   Input: a WebClient
-  
+
   Response: `{:ok, <pairingCode> }`
 
   The pairingCode can then be used at /dashboard/merchant/api-tokens to authenticate the token
@@ -53,8 +53,8 @@ defmodule BitPay.WebClient do
   @doc """
   Sends a post request to the server that creates a new invoice.
 
-  Input: 
-    
+  Input:
+
    * a params map that must contain a price and a currency
    * a WebClient struct. The web client struct must be paired with BitPay.
 
@@ -87,7 +87,7 @@ defmodule BitPay.WebClient do
 
   @doc """
   Generic Get method to the WebClient endpoint + path
-  Input: 
+  Input:
     * the path (string)
     * params for the request (as map)
     * WebClient struct
@@ -99,7 +99,10 @@ defmodule BitPay.WebClient do
     uri = "#{webclient.uri}/#{path}"
     headers = signed_headers uri, webclient.pem
     headers = Enum.concat(["content-type": "application/json", "accept": "application/json", "X-accept-version": "2.0.0"], headers)
-    HTTPotion.get( uri, headers, []) |>
+    options = [
+      headers: headers
+    ]
+    HTTPotion.request( :get, uri, options ) |>
     parse_response
   end
 
@@ -109,7 +112,7 @@ defmodule BitPay.WebClient do
     * the path (string)
     * params for the request (as map)
     * WebClient struct
-  
+
     Response:
     a map containing the response code, successe status as true or false, and the body of the http response
   """
@@ -128,13 +131,13 @@ defmodule BitPay.WebClient do
   defp build_post({:ok, %{with_facade: :public}}, path, params, webclient) do
     params = Map.drop(params, [:with_facade])
     uri = "#{webclient.uri}/#{path}"
-    body = params |> Map.put(:id, KeyUtils.get_sin_from_pem(webclient.pem)) |> JSX.encode!
+    body = params |> Map.put(:id, KeyUtils.get_sin_from_pem(webclient.pem)) |> Poison.encode!
     headers = []
     {:ok, %{uri: uri, body: body, headers: headers}}
   end
   defp build_post({:ok, _}, path, params, webclient) do
     uri = "#{webclient.uri}/#{path}"
-    body = params |> Map.put(:id, KeyUtils.get_sin_from_pem(webclient.pem)) |> JSX.encode!
+    body = params |> Map.put(:id, KeyUtils.get_sin_from_pem(webclient.pem)) |> Poison.encode!
     headers = signed_headers uri <> body, webclient.pem
     {:ok, %{uri: uri, body: body, headers: headers}}
   end
@@ -200,8 +203,19 @@ defmodule BitPay.WebClient do
   defp post_to_server({:error, message}), do: {:error, message}
   defp post_to_server({:ok, %{uri: uri, body: body, headers: headers}}), do: post_to_server(uri, body, headers)
   defp post_to_server uri, body, headers do
-    headers = Enum.concat(["content-type": "application/json", "accept": "application/json", "X-accept-version": "2.0.0"], headers)
-    HTTPotion.post(uri, body, headers) |>
+    headers = Enum.concat(
+      [
+        "content-type": "application/json",
+        "accept": "application/json",
+        "X-accept-version": "2.0.0"
+      ],
+      headers
+    )
+    options = [
+      headers: headers,
+      body: body
+    ]
+    HTTPotion.request(:post, uri, options) |>
     parse_response
   end
 
@@ -220,6 +234,7 @@ defmodule BitPay.WebClient do
 
   defp validate_price(price, _currency) when is_integer(price), do: {:ok, "price is valid"}
   defp validate_price(price, _currency) when is_float(price), do: {:ok, "price is valid"}
+  defp validate_price(%Decimal{}, _currency), do: {:ok, "price is valid"}
   defp validate_price(price, currency) when is_list(price), do: validate_price(List.to_string(price), currency)
   defp validate_price(price, "BTC") when is_binary(price), do: invoice_args_errors(price =~ ~r/^\d+(\.\d{1,8})?$/, true)
   defp validate_price(price, _currency) when is_binary(price), do: invoice_args_errors(price =~ ~r/^\d+(\.\d{1,2})?$/, true)
